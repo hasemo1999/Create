@@ -16,6 +16,10 @@ jobs:
       - uses: actions/checkout@v4
 
             # OpenAI ライブラリ v0 をインストール
+            - name: Install openai v0 + deps
+            run:
+              pip uninstall -y openai || true
+              pip install openai==0.28.1 python-dotenv
 
         
 
