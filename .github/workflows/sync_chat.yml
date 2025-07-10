@@ -20,6 +20,14 @@ jobs:
           pip install --upgrade pip
           pip install openai==0.28.1 python-dotenv
 
+          on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 15 * * *'
+  push:
+    branches: [main]          # ← main ブランチに push されたら
+
+
       - name: Fetch & append chat
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
