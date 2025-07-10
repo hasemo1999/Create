@@ -22,7 +22,7 @@ jobs:
 
       # ③ 依存ライブラリを入れる
       - name: Install deps
-        run: pip install openai python-dotenv
+        run: pip install python-dotenv
 
       # ④ チャット履歴を取得→Markdownに追記（fetch_and_append.py は後で作成）
       - name: Fetch & append chat
