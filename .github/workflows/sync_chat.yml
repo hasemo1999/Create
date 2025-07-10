@@ -1,35 +1,45 @@
 name: Auto-sync 100倍まとめ
 
-on:
-  schedule:
-    - cron: '0 15 * * *'        # 毎日 0:00 JST
-  workflow_dispatch:
+on:                       # ← ここがトップレベル
+  workflow_dispatch:      # 手動実行用
+  schedule:               # 毎日 0:15 JST
+    - cron: '0 15 * * *'
+  push:                   # main へ push されたとき
+    branches: [main]
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
+      # 1) リポジトリを取得
       - uses: actions/checkout@v4
 
+      # 2) Python 3.11 をセットアップ
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # 3) 依存ライブラリ (旧 openai) + dotenv をインストール
       - name: Install deps
         run: |
           pip install --upgrade pip
           pip install openai==0.28.1 python-dotenv
 
-          on:
-          workflow_dispatch:
-          schedule:
-          - cron: '0 15 * * *'
-          push:
-          branches: [main]          # ← main ブランチに push されたら
-
-
+      # 4) チャット履歴を取得して Markdown 追記
       - name: Fetch & append chat
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          python scripts/fetch_and_append.py
+          python scripts/fetch_and_append.py --thread $CHAT_THREAD_ID --output docs/100倍まとめ.md
+
+      # 5) 変更があればコミット & プッシュ
+      - name: Commit & push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/100倍まとめ.md
+          git diff --cached --quiet || git commit -m "chore: auto-sync chat $(date -u '+%Y-%m-%d')"
+          git push
