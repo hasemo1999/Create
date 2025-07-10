@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v4
 
             # OpenAI ライブラリ v0 をインストール
-      - name: Install openai v0
-        run: pip install openai==0.28.1 python-dotenv
+
+        
 
 
       # ④ チャット履歴を取得→Markdownに追記（fetch_and_append.py は後で作成）
