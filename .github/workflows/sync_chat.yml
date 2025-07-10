@@ -26,9 +26,3 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           run: |
            python scripts/fetch_and_append.py
-
-          python scripts/fetch_and_append.py
-
-          python scripts/fetch_and_append.py
-
-          python scripts/fetch_and_append.py
