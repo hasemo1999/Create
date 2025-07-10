@@ -15,14 +15,10 @@ jobs:
       # ① レポジトリを取得
       - uses: actions/checkout@v4
 
-      # ② Python 環境を用意
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+            # OpenAI ライブラリ v0 をインストール
+      - name: Install openai v0
+        run: pip install openai==0.28.1 python-dotenv
 
-      # ③ 依存ライブラリを入れる
-      - name: Install deps
-        run: pip install python-dotenv
 
       # ④ チャット履歴を取得→Markdownに追記（fetch_and_append.py は後で作成）
       - name: Fetch & append chat
