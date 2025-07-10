@@ -12,23 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) レポジトリ取得
+      # ① レポジトリ取得
       - uses: actions/checkout@v4
 
-      # 2) Python 3.11 をセットアップ
+      # ② Python 3.11 をセットアップ
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 3) OpenAI v0 系 + dotenv をインストール
+      # ③ OpenAI v0 系 + dotenv をインストール
       - name: Install deps
         run: |
           pip install --upgrade pip
           pip install openai==0.28.1 python-dotenv
 
-      # 4) チャット履歴を取得して Markdown 追記
+      # ④ チャット履歴を取得して Markdown 追記
       - name: Fetch & append chat
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python scripts/fetch_and_append.py
+
