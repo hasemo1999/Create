@@ -1,0 +1,10 @@
+name: Auto-sync 100倍まとめ
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ テスト用ワークフロー実行完了"
