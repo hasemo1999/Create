@@ -1,0 +1,44 @@
+name: Auto‑sync Chat to 100倍まとめ
+
+on:
+  # 毎日 0:00 JST（=15:00 UTC）に実行
+  schedule:
+    - cron: '0 15 * * *'
+  # 手動実行も可
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ① レポジトリを取得
+      - uses: actions/checkout@v4
+
+      # ② Python 環境を用意
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # ③ 依存ライブラリを入れる
+      - name: Install deps
+        run: pip install openai python-dotenv
+
+      # ④ チャット履歴を取得→Markdownに追記（fetch_and_append.py は後で作成）
+      - name: Fetch & append chat
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CHAT_THREAD_ID: ${{ vars.CHAT_THREAD_ID }}
+        run: |
+          python scripts/fetch_and_append.py --thread $CHAT_THREAD_ID --output docs/100倍まとめ.md
+
+      # ⑤ 変更があったらコミット & プッシュ
+      - name: Commit & Push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/100倍まとめ.md
+          git diff --cached --quiet || git commit -m "chore: auto‑sync chat $(date -u +'%Y-%m-%d')"
+          git push
