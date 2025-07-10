@@ -21,11 +21,11 @@ jobs:
           pip install openai==0.28.1 python-dotenv
 
           on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 15 * * *'
-  push:
-    branches: [main]          # ← main ブランチに push されたら
+          workflow_dispatch:
+          schedule:
+          - cron: '0 15 * * *'
+          push:
+          branches: [main]          # ← main ブランチに push されたら
 
 
       - name: Fetch & append chat
