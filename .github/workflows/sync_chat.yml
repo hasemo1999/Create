@@ -1,35 +1,32 @@
 name: Auto-sync Chat to 100倍まとめ
 
 on:
-  # 毎日 0:00 JST (=15:00 UTC) に実行
-  schedule:
+  schedule:            # 毎日 0:00 JST (＝15:00 UTC)
     - cron: '0 15 * * *'
-  # 手動実行も可
-  workflow_dispatch:
+  workflow_dispatch:   # 手動実行も可
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      # ① レポジトリ取得
+      # 1) レポジトリ取得
       - uses: actions/checkout@v4
 
-      # ② Python 3.11 をセットアップ
+      # 2) Python 3.11 セットアップ
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # ③ OpenAI v0 系 + dotenv をインストール
+      # 3) OpenAI v0 + dotenv インストール
       - name: Install deps
         run: |
           pip install --upgrade pip
           pip install openai==0.28.1 python-dotenv
 
-      # ④ チャット履歴を取得して Markdown 追記
+      # 4) チャット要約を Markdown に追記
       - name: Fetch & append chat
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python scripts/fetch_and_append.py
-
