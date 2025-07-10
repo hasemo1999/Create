@@ -10,19 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4          # ① リポジトリ取得
+        - uses: actions/checkout@v4          # ① リポジトリ取得
 
-      - uses: actions/setup-python@v4      # ② Python 3.11
-        with:
+        - uses: actions/setup-python@v4      # ② Python 3.11
+          with:
           python-version: '3.11'
 
-      - name: Install deps                 # ③ ライブラリ
-        run: |
-          pip install --upgrade pip
-          pip install openai==0.28.1 python-dotenv
+        - name: Install deps                 # ③ ライブラリ
+          run: |
+            pip install --upgrade pip
+            pip install openai==0.28.1 python-dotenv
 
-      - name: Fetch & append chat          # ④ 要約 → 追記
-        env:
+        - name: Fetch & append chat          # ④ 要約 → 追記
+          env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
+          run: |
+           python scripts/fetch_and_append.py
+
+          python scripts/fetch_and_append.py
+
+          python scripts/fetch_and_append.py
+
           python scripts/fetch_and_append.py
