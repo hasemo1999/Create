@@ -1,10 +1,27 @@
 name: Auto-sync 100倍まとめ
 
 on:
+  schedule:
+    - cron: '0 15 * * *'        # 毎日 0:00 JST
   workflow_dispatch:
 
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "✅ テスト用ワークフロー実行完了"
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          pip install --upgrade pip
+          pip install openai==0.28.1 python-dotenv
+
+      - name: Fetch & append chat
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/fetch_and_append.py
