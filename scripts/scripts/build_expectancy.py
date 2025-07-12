@@ -39,3 +39,12 @@ with out.open("w", encoding="utf-8") as f:
     f.write(f"- 平均損失 (負け): **{avg_loss_abs:.2f}**\n")
     f.write(f"- **期待値**: **{expectancy:.2f} pips**\n")
 print(f"✅ 期待値レポートを {out} に保存しました")
+import pandas as pd, pathlib, datetime as dt
+h = pathlib.Path("data/history.csv")
+if not h.exists(): quit("履歴CSVがありません")
+d = pd.read_csv(h)
+win = d[d.Profit>0]; lose = d[d.Profit<0]
+ex = (len(win)/len(d))*win.Profit.mean() - (len(lose)/len(d))*lose.Profit.abs().mean()
+out = pathlib.Path("docs/expectancy.md"); out.parent.mkdir(exist_ok=True)
+out.write_text(f"# 期待値レポート {dt.date.today()}\n\n期待値: **{ex:.2f} pips**\n", "utf-8")
+print("✅ docs/expectancy.md を更新しました")
