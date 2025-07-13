@@ -51,3 +51,6 @@ print("✅ docs/expectancy.md を更新しました")
 with open("docs/100倍まとめ.md", "a", encoding="utf-8") as f:
     f.write("\n\n## 今月の期待値ダッシュボード\n")
     f.write(open("docs/expectancy.md", encoding="utf-8").read())
+out.write_text(report)                               # docs/expectancy.md を丸ごと上書き
+print("✅  docs/expectancy.md を更新しました")          # 確認ログ
+open("docs/100倍まとめ.md", "a", encoding="utf-8").write("\n\n" + report)  # 100倍まとめに追記
