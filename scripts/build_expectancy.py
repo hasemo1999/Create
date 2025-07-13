@@ -1,56 +1,45 @@
-"""
-build_expectancy.py
-─ 取引履歴 CSV を読み込み、期待値を計算して docs/expectancy.md を上書きする
-CSV 例:
- Time,Symbol,Type,Lots,Profit
- 2025-07-01,USDJPY,buy,0.01,12.5
- 2025-07-01,USDJPY,sell,0.01,-8.3
-"""
-
-import pandas as pd
 from pathlib import Path
+import datetime as dt
+import pandas as pd
 
-# 1️⃣ 取引履歴 CSV を読み込む（MTの「履歴をエクスポート」→ history.csv など）
-HISTORY_CSV = Path("data/history.csv")      # ← 場所は好きに変えてOK
-if not HISTORY_CSV.exists():
-    raise SystemExit(f"取引履歴 {HISTORY_CSV} が見つかりません")
+HISTORY_CSV = Path("data/history.csv")
+EXPECT_MD   = Path("docs/expectancy.md")
+SUMMARY_MD  = Path("docs/100倍まとめ.md")
 
-df = pd.read_csv(HISTORY_CSV)
+def calc_expectancy(df: pd.DataFrame) -> float:
+    """
+    Expected Value = (勝率 × 平均勝ち) － (負け率 × 平均負け)
+    """
+    wins   = df[df["Profit"] > 0]["Profit"]
+    losses = df[df["Profit"] < 0]["Profit"].abs()
+    win_rate = len(wins) / len(df)
+    expect = win_rate * wins.mean() - (1 - win_rate) * losses.mean()
+    return expect, win_rate
 
-# 2️⃣ 勝ち負け別に平均値を計算
-wins  = df[df["Profit"] > 0]
-loss  = df[df["Profit"] < 0]
+def main() -> None:
+    if not HISTORY_CSV.exists():
+        raise SystemExit(f"取引履歴 {HISTORY_CSV} が見つかりません")
 
-win_rate      = len(wins) / len(df) if len(df) else 0
-avg_profit    = wins["Profit"].mean()  if not wins.empty else 0
-avg_loss_abs  = loss["Profit"].abs().mean() if not loss.empty else 0
+    df = pd.read_csv(HISTORY_CSV)
+    expect, win_rate = calc_expectancy(df)
 
-expectancy = win_rate * avg_profit - (1 - win_rate) * avg_loss_abs
+    # 期待値レポートを Markdown で作成
+    report = f"""\
+# 期待値レポート {dt.date.today():%Y-%m-%d}
 
-# 3️⃣ Markdown に書き出し
-out = Path("docs/expectancy.md")
-out.parent.mkdir(exist_ok=True)
+| 指標 | 数値 |
+|------|------|
+| 勝率 | **{win_rate:.1%}** |
+| 期待値 | **{expect:+.2f} pips** |
+"""
 
-with out.open("w", encoding="utf-8") as f:
-    f.write("# 今月の期待値レポート\n\n")
-    f.write(f"- 総トレード数: **{len(df)}**\n")
-    f.write(f"- 勝率: **{win_rate*100:.2f}%**\n")
-    f.write(f"- 平均利益 (勝ち): **{avg_profit:.2f}**\n")
-    f.write(f"- 平均損失 (負け): **{avg_loss_abs:.2f}**\n")
-    f.write(f"- **期待値**: **{expectancy:.2f} pips**\n")
-print(f"✅ 期待値レポートを {out} に保存しました")
-import pandas as pd, pathlib, datetime as dt
-h = pathlib.Path("data/history.csv")
-if not h.exists(): quit("履歴CSVがありません")
-d = pd.read_csv(h)
-win = d[d.Profit>0]; lose = d[d.Profit<0]
-ex = (len(win)/len(d))*win.Profit.mean() - (len(lose)/len(d))*lose.Profit.abs().mean()
-out = pathlib.Path("docs/expectancy.md"); out.parent.mkdir(exist_ok=True)
-out.write_text(f"# 期待値レポート {dt.date.today()}\n\n期待値: **{ex:.2f} pips**\n", "utf-8")
-print("✅ docs/expectancy.md を更新しました")
-with open("docs/100倍まとめ.md", "a", encoding="utf-8") as f:
-    f.write("\n\n## 今月の期待値ダッシュボード\n")
-    f.write(open("docs/expectancy.md", encoding="utf-8").read())
-out.write_text(report)                               # docs/expectancy.md を丸ごと上書き
-print("✅  docs/expectancy.md を更新しました")          # 確認ログ
-open("docs/100倍まとめ.md", "a", encoding="utf-8").write("\n\n" + report)  # 100倍まとめに追記
+    EXPECT_MD.write_text(report, encoding="utf-8")
+    print("✅ docs/expectancy.md を更新しました")
+
+    # --- 100倍まとめ.md の末尾に今月のダッシュボードを追記 ---
+    with SUMMARY_MD.open("a", encoding="utf-8") as f:
+        f.write("\n\n## 今月の期待値ダッシュボード\n")
+        f.write(report)
+
+if __name__ == "__main__":
+    main()
