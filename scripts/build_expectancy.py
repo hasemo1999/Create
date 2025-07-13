@@ -48,3 +48,6 @@ ex = (len(win)/len(d))*win.Profit.mean() - (len(lose)/len(d))*lose.Profit.abs().
 out = pathlib.Path("docs/expectancy.md"); out.parent.mkdir(exist_ok=True)
 out.write_text(f"# 期待値レポート {dt.date.today()}\n\n期待値: **{ex:.2f} pips**\n", "utf-8")
 print("✅ docs/expectancy.md を更新しました")
+with open("docs/100倍まとめ.md", "a", encoding="utf-8") as f:
+    f.write("\n\n## 今月の期待値ダッシュボード\n")
+    f.write(open("docs/expectancy.md", encoding="utf-8").read())
