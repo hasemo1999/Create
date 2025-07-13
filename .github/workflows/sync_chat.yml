@@ -3,10 +3,10 @@ name: Auto-sync 100倍まとめ
 on:
   # 手動実行
   workflow_dispatch:
-  # 毎日 0:15 〈JST〉 = 15:15 〈UTC〉
+  # 毎日 0:15 JST ＝ 15:15 UTC
   schedule:
     - cron: '15 15 * * *'
-  # main ブランチに push されたら
+  # main ブランチに push された時
   push:
     branches: [main]
 
@@ -15,23 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) リポジトリを取得
-      - name: Checkout repository
+      # ① リポジトリを取得
+      - name: Checkout
         uses: actions/checkout@v4
 
       # 2) Python 3.11 をセットアップ
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 3) 依存ライブラリをインストール
-      - name: Install dependencies
+      # ③ 必要ライブラリをインストール
+      - name: Install deps
         run: |
           pip install --upgrade pip
           pip install openai==0.28.1 python-dotenv pandas
+          pip install openai==0.28.1 python-dotenv pandas
 
-      # 4) チャット履歴を取得して Markdown に追記
+      # ④ チャット履歴を取得して Markdown に追記
       - name: Fetch & append chat
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -40,17 +40,23 @@ jobs:
             --thread $CHAT_THREAD_ID \
             --output docs/100倍まとめ.md
 
-      # 5) 期待値ダッシュボードを生成
-      - name: Build expectancy dashboard
-        run: python scripts/build_expectancy.py
+      # ⑤ 期待値ダッシュボードを生成（必要に応じて）
+      - name: Build expectancy report
+        run: |
+          python scripts/build_expectancy.py
 
-      # 6) 変更があればコミット & プッシュ
+      # ⑥ 変更があればコミット & プッシュ
       - name: Commit & push
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # docs フォルダ下の .md をまとめてステージ
           git add docs/*.md
+
+          # 差分がある時だけコミット
           git diff --cached --quiet || \
             git commit -m "chore: auto-sync chat $(date -u '+%Y-%m-%d')"
+
           git push
 
