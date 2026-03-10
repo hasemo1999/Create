@@ -1,7 +1,8 @@
 # scripts/fetch_and_append.py
 import os, datetime, pathlib, openai
 
-DST = pathlib.Path("docs/100倍まとめ.md")
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+DST = BASE_DIR / "docs" / "100倍まとめ.md"
 THREAD = os.getenv("CHAT_THREAD_ID", "100x")  # 予備ID
 
 openai.api_key = os.getenv("OPENAI_API_KEY")

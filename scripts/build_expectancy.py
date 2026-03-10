@@ -2,9 +2,10 @@ from pathlib import Path
 import datetime as dt
 import pandas as pd
 
-HISTORY_CSV = Path("data/history.csv")
-EXPECT_MD   = Path("docs/expectancy.md")
-SUMMARY_MD  = Path("docs/100倍まとめ.md")
+BASE_DIR = Path(__file__).resolve().parent.parent
+HISTORY_CSV = BASE_DIR / "data" / "history.csv"
+EXPECT_MD   = BASE_DIR / "docs" / "expectancy.md"
+SUMMARY_MD  = BASE_DIR / "docs" / "100倍まとめ.md"
 
 def calc_expectancy(df: pd.DataFrame) -> float:
     """
