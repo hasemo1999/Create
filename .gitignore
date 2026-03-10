@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Google Drive credentials & sync state
+sa_key.json
+*-service-account.json
+.gdrive_sync_manifest.json
+gdrive_config.json

@@ -41,5 +41,31 @@ def main() -> None:
         f.write("\n\n## 今月の期待値ダッシュボード\n")
         f.write(report)
 
+def upload_to_drive_and_sheets():
+    """レポートをGoogle Drive / Sheetsに保存（環境変数設定時のみ）。"""
+    import os
+    if not os.environ.get("GDRIVE_FOLDER_ID"):
+        return
+    try:
+        from gdrive_utils import GDriveConfig, DriveClient, SheetsClient
+        gdcfg = GDriveConfig.from_env()
+        dc = DriveClient(gdcfg)
+        dc.upload_file(str(EXPECT_MD), folder_id=gdcfg.folder_id)
+        print(f"Google Driveへアップロード完了: {EXPECT_MD}")
+
+        if gdcfg.sheet_id:
+            df = pd.read_csv(HISTORY_CSV)
+            expect, win_rate = calc_expectancy(df)
+            sc = SheetsClient(gdcfg)
+            sc.append_rows([[
+                dt.date.today().isoformat(),
+                f"{win_rate:.4f}",
+                f"{expect:.4f}",
+            ]], spreadsheet_id=gdcfg.sheet_id, worksheet_name="Expectancy")
+            print("Google Sheetsへ追記完了")
+    except Exception as e:
+        print(f"Google Drive/Sheets連携失敗: {e}")
+
 if __name__ == "__main__":
     main()
+    upload_to_drive_and_sheets()

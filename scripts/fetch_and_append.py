@@ -20,5 +20,19 @@ def append(text):
     with DST.open("a", encoding="utf-8") as f:
         f.write(f"\\n\\n## {datetime.date.today()}\\n{text}\\n")
 
+def upload_to_drive():
+    """DST ファイルを Google Drive にアップロード（GDRIVE_FOLDER_ID 設定時のみ）。"""
+    if not os.environ.get("GDRIVE_FOLDER_ID"):
+        return
+    try:
+        from gdrive_utils import GDriveConfig, DriveClient
+        gdcfg = GDriveConfig.from_env()
+        dc = DriveClient(gdcfg)
+        dc.upload_file(str(DST), folder_id=gdcfg.folder_id)
+        print(f"Google Driveへアップロード完了: {DST}")
+    except Exception as e:
+        print(f"Google Driveアップロード失敗: {e}")
+
 if __name__ == "__main__":
     append(fetch_chat_summary())
+    upload_to_drive()
